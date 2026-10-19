@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "f0f2368c-aa6d-44c1-816a-2e053e936845",
+  "id": "6c47a293-7736-44ef-91a5-93e1eb6c7abf",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -13,42 +13,33 @@
       "schema": "public"
     },
     {
-      "type": "integer",
+      "type": "uuid",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
-      "default": null,
+      "default": "gen_random_uuid()",
       "generated": null,
-      "identity": {
-        "type": "always",
-        "name": "users_id_seq",
-        "increment": "1",
-        "startWith": "1",
-        "minValue": "1",
-        "maxValue": "2147483647",
-        "cache": 1,
-        "cycle": false
-      },
+      "identity": null,
       "name": "id",
       "entityType": "columns",
       "schema": "public",
       "table": "users"
     },
     {
-      "type": "varchar(255)",
+      "type": "text",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "name",
+      "name": "username",
       "entityType": "columns",
       "schema": "public",
       "table": "users"
     },
     {
-      "type": "varchar(255)",
+      "type": "text",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
@@ -56,6 +47,32 @@
       "generated": null,
       "identity": null,
       "name": "email",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "password_hash",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
       "entityType": "columns",
       "schema": "public",
       "table": "users"
@@ -69,6 +86,17 @@
       "schema": "public",
       "table": "users",
       "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "username"
+      ],
+      "nullsNotDistinct": false,
+      "name": "users_username_key",
+      "schema": "public",
+      "table": "users",
+      "entityType": "uniques"
     },
     {
       "nameExplicit": false,
