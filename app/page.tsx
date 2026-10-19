@@ -1,11 +1,6 @@
-import { db } from "@/db";
-import { usersTable } from "@/db/schema";
-
-export default async function Home() {
-  const users = await db.select().from(usersTable);
-  console.log(users);
+export default function Home() {
   return (
-    <div>
+    <div className="flex h-screen items-center justify-center">
       hello world
     </div>
   );
