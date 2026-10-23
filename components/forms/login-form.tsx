@@ -22,28 +22,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { loginUser } from "@/app/actions/auth";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-
-  const delay = (ms: number): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  };
-
-  async function onSubmit(data: LoginInput) {
-    setIsLoading(true);
-    try {
-      await delay(2000);
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
+  // This informs React Hook Form that input values are strings, but the submission output is transformed.
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -51,6 +39,28 @@ export function LoginForm() {
       password: ""
     }
   })
+
+  async function onSubmit(data: LoginInput) {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await loginUser(data);
+
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+
+      const params = new URLSearchParams({ userId: result.data.userId });
+      router.push(`/dashboard?${params.toString()}`);
+    } catch (cause) {
+      console.error("Login request failed", cause);
+      setError("We couldn't log you in. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <Card className="w-full max-w-md border-border/60 shadow-sm">
@@ -130,6 +140,16 @@ export function LoginForm() {
               )}
             </Field>
           </FieldGroup>
+
+          {error && (
+            <div
+              role="alert"
+              className="mt-4 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+            >
+              {error}
+            </div>
+          )}
+
         </form>
       </CardContent>
 
@@ -144,7 +164,7 @@ export function LoginForm() {
         </Button>
 
         <div className="flex items-center gap-1 text-sm text-muted-foreground">
-          <span>Don't have an account?</span>
+          <span>Don&apos;t have an account?</span>
 
           <Link
             href="/signup"

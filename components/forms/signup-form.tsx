@@ -22,27 +22,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { signUp } from "@/app/actions/auth";
+import { useRouter } from "next/navigation";
 
 export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-
-
-  const delay = (ms: number): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  };
-
-  async function onSubmit(data: SignupInput) {
-    setIsLoading(true);
-    try {
-      await delay(2000);
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -52,6 +39,35 @@ export function SignupForm() {
       password: ""
     }
   })
+
+  async function onSubmit(data: SignupInput) {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await signUp(data);
+
+      if (!result.ok) {
+        if (result.field) {
+          form.setError(result.field, {
+            type: "server",
+            message: result.message,
+          });
+        } else {
+          setError(result.message);
+        }
+        return;
+      }
+
+      const params = new URLSearchParams({ userId: result.data.userId });
+      router.push(`/dashboard?${params.toString()}`);
+    } catch (cause) {
+      console.error("Signup request failed", cause);
+      setError("We couldn't create your account. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <Card className="w-full max-w-md border-border/60 shadow-sm">
@@ -67,6 +83,15 @@ export function SignupForm() {
 
       <CardContent>
         <form noValidate id="signup-form" onSubmit={form.handleSubmit(onSubmit)}>
+          {error && (
+            <div
+              role="alert"
+              className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+            >
+              {error}
+            </div>
+          )}
+
           <FieldGroup className="gap-5">
             {/* Username */}
             <Field data-invalid={!!form.formState.errors.username}>
@@ -127,7 +152,7 @@ export function SignupForm() {
                   type={showPassword ? "text" : "password"}
                   aria-invalid={!!form.formState.errors.password}
                   placeholder="Enter a strong password"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   className="h-10 pr-10"
                 />
 

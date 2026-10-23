@@ -13,10 +13,11 @@ export const signupSchema = z.object({
     ),
 
   email: z
-    .email("Please enter a valid email.")
+    .string()
     .trim()
+    .toLowerCase()
     .max(254, "Email address is too long.")
-    .transform((email) => email.toLowerCase()),
+    .pipe(z.email("Please enter a valid email.")),
 
   password: z
     .string()
