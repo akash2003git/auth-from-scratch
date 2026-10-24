@@ -3,3 +3,4 @@
 // instead of letting users think their password is stronger than it is.
 export const MAX_PASSWORD_BYTES = 72
 export const BCRYPT_COST = 12;
+export const ACCESS_TOKEN_EXPIRATION_IN_SECONDS = 7 * 24 * 60 * 60

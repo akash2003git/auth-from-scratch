@@ -59,8 +59,7 @@ export function SignupForm() {
         return;
       }
 
-      const params = new URLSearchParams({ userId: result.data.userId });
-      router.push(`/dashboard?${params.toString()}`);
+      router.replace("/dashboard");
     } catch (cause) {
       console.error("Signup request failed", cause);
       setError("We couldn't create your account. Please try again.");

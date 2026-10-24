@@ -5,7 +5,9 @@ import { usersTable } from "@/db/schema";
 import { uniqueViolationField } from "@/db/errors";
 import { signupSchema } from "@/lib/validations/signup";
 import { loginSchema } from "@/lib/validations/login";
-import { BCRYPT_COST } from "@/lib/auth/constants";
+import {
+  BCRYPT_COST,
+} from "@/lib/auth/constants";
 import {
   AUTH_ERROR_MESSAGES,
   fail,
@@ -14,10 +16,12 @@ import {
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
+import { redirect } from "next/navigation";
+import { createSession, deleteSession } from "@/lib/auth/session";
 
 export async function signUp(
   input: unknown
-): Promise<ActionResult<{ userId: string }>> {
+): Promise<ActionResult> {
   const parsed = signupSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -34,7 +38,8 @@ export async function signUp(
       passwordHash: hash,
     }).returning({ id: usersTable.id });
 
-    return { ok: true, data: { userId: newUser.id } };
+    await createSession(newUser.id);
+    return { ok: true };
   } catch (error) {
     const field = uniqueViolationField(error);
 
@@ -61,7 +66,7 @@ export async function signUp(
 
 export async function loginUser(
   input: unknown
-): Promise<ActionResult<{ userId: string }>> {
+): Promise<ActionResult> {
   const parsed = loginSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -89,9 +94,15 @@ export async function loginUser(
       return fail("INVALID_CREDENTIALS", AUTH_ERROR_MESSAGES.invalidCredentials);
     }
 
-    return { ok: true, data: { userId: user.id } };
+    await createSession(user.id);
+    return { ok: true };
   } catch (error) {
     console.error("Login failed", error);
     return fail("SERVER_ERROR", AUTH_ERROR_MESSAGES.serverError);
   }
+}
+
+export async function logout() {
+  await deleteSession();
+  redirect("/login");
 }

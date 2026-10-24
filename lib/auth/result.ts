@@ -7,8 +7,8 @@ export type AuthErrorCode =
 
 export type AuthField = "username" | "email" | "password";
 
-export type ActionResult<T> =
-  | { ok: true; data: T }
+export type ActionResult =
+  | { ok: true; }
   | { ok: false; code: AuthErrorCode; message: string; field?: AuthField };
 
 export const AUTH_ERROR_MESSAGES = {
@@ -23,6 +23,6 @@ export function fail(
   code: AuthErrorCode,
   message: string,
   field?: AuthField,
-): ActionResult<never> {
+): ActionResult {
   return { ok: false, code, message, field };
 }

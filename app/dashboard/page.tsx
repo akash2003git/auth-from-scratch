@@ -1,14 +1,22 @@
-export const instant = false
+import { requireSession } from "@/lib/auth/session";
+import { logout } from "@/app/actions/auth";
+import { Button } from "@/components/ui/button";
 
-const Page = async (props: PageProps<"/dashboard">) => {
-  const { userId } = await props.searchParams;
+const Page = async () => {
+  const { userId } = await requireSession();
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      Dashboard
+    <div className="flex h-screen flex-col items-center justify-center gap-4">
+      <span>Dashboard</span>
       <span>{userId}</span>
-    </div>
-  )
-}
 
-export default Page
+      <form action={logout}>
+        <Button type="submit" variant="outline">
+          Log out
+        </Button>
+      </form>
+    </div>
+  );
+};
+
+export default Page;

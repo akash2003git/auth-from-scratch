@@ -51,9 +51,7 @@ export function LoginForm() {
         setError(result.message);
         return;
       }
-
-      const params = new URLSearchParams({ userId: result.data.userId });
-      router.push(`/dashboard?${params.toString()}`);
+      router.replace("/dashboard");
     } catch (cause) {
       console.error("Login request failed", cause);
       setError("We couldn't log you in. Please try again.");
