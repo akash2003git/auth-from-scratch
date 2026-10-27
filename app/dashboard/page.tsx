@@ -2,6 +2,8 @@ import { requireSession } from "@/lib/auth/session";
 import { logout } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 
+export const instant = false;
+
 const Page = async () => {
   const { userId } = await requireSession();
 

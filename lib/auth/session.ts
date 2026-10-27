@@ -1,52 +1,32 @@
 import "server-only";
 
 import { cache } from "react";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { ACCESS_TOKEN_EXPIRATION_IN_SECONDS } from "@/lib/auth/constants";
-import { createToken, verifyToken } from "@/lib/auth/jwt";
-
-const SESSION_COOKIE_NAME = "accessToken";
+import { verifyToken } from "@/lib/auth/jwt";
+import { getAccessToken, getRefreshToken } from "./cookies";
 
 export type Session = {
   userId: string;
 };
 
-export async function createSession(userId: string) {
-  const accessToken = await createToken(userId);
-  const cookieStore = await cookies();
-
-  cookieStore.set({
-    name: SESSION_COOKIE_NAME,
-    value: accessToken,
-    httpOnly: true,
-    path: "/",
-    maxAge: ACCESS_TOKEN_EXPIRATION_IN_SECONDS,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  });
-}
-
 export const getSession = cache(async (): Promise<Session | null> => {
-  const accessToken = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
-
+  const accessToken = await getAccessToken();
   if (!accessToken) {
     return null;
   }
-
   return verifyToken(accessToken);
 });
 
-export async function requireSession(): Promise<Session> {
+export async function requireSession(next = "/dashboard"): Promise<Session> {
   const session = await getSession();
 
-  if (!session) {
-    redirect("/login");
+  if (session) {
+    return session;
   }
 
-  return session;
-}
+  if (await getRefreshToken()) {
+    redirect(`/refresh?next=${encodeURIComponent(next)}`);
+  }
 
-export async function deleteSession() {
-  (await cookies()).delete(SESSION_COOKIE_NAME);
+  redirect("/login");
 }

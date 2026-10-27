@@ -17,7 +17,7 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
 import { redirect } from "next/navigation";
-import { createSession, deleteSession } from "@/lib/auth/session";
+import { createSession, deleteSession } from "@/lib/auth/session-lifecycle";
 
 export async function signUp(
   input: unknown

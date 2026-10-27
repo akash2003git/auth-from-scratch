@@ -168,3 +168,19 @@ export async function revokeFamily(familyId: string) {
       ),
     );
 }
+
+export async function revokeTokenFamily(rawToken: string) {
+  const tokenHash = hashRefreshToken(rawToken);
+
+  const [row] = await db
+    .select({ familyId: refreshTokensTable.familyId })
+    .from(refreshTokensTable)
+    .where(eq(refreshTokensTable.tokenHash, tokenHash))
+    .limit(1);
+
+  if (!row) {
+    return;
+  }
+
+  await revokeFamily(row.familyId);
+}
