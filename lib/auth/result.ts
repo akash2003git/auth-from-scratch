@@ -8,7 +8,7 @@ export type AuthErrorCode =
 export type AuthField = "username" | "email" | "password";
 
 export type ActionResult =
-  | { ok: true; }
+  | { ok: true; message?: string }
   | { ok: false; code: AuthErrorCode; message: string; field?: AuthField };
 
 export const AUTH_ERROR_MESSAGES = {

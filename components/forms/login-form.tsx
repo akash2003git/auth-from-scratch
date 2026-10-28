@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "../ui/card";
+} from "@/components/ui/card";
 import { LoginInput, loginSchema } from "@/lib/validations/login";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -100,9 +100,18 @@ export function LoginForm() {
 
             {/* Password */}
             <Field data-invalid={!!form.formState.errors.password}>
-              <FieldLabel htmlFor="login-form-password">
-                Password
-              </FieldLabel>
+              <div className="flex items-center justify-between gap-2">
+                <FieldLabel htmlFor="login-form-password">
+                  Password
+                </FieldLabel>
+
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
 
               <div className="relative">
                 <Input

@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "../ui/card";
+} from "@/components/ui/card";
 import { SignupInput, signupSchema } from "@/lib/validations/signup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
