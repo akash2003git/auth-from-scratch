@@ -42,7 +42,32 @@ export const refreshTokensTable = table(
   ],
 );
 
+export const passwordResetTokensTable = table(
+  "password_reset_tokens",
+  {
+    id: t.uuid("id").defaultRandom().primaryKey(),
+    userId: t
+      .uuid("user_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    tokenHash: t.text("token_hash").notNull().unique(),
+    expiresAt: t
+      .timestamp("expires_at", { withTimezone: true, mode: "date" })
+      .notNull(),
+    createdAt: t
+      .timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+  },
+  (columns) => [
+    t.index("password_reset_tokens_expires_at_idx").on(columns.expiresAt)
+  ],
+
+)
+
 export type InsertUser = typeof usersTable.$inferInsert;
 export type SelectUser = typeof usersTable.$inferSelect;
 export type InsertRefreshToken = typeof refreshTokensTable.$inferInsert;
 export type SelectRefreshToken = typeof refreshTokensTable.$inferSelect;
+export type InsertPasswordResetToken = typeof passwordResetTokensTable.$inferInsert;
+export type SelectPasswordResetToken = typeof passwordResetTokensTable.$inferSelect;
