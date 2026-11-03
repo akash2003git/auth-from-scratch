@@ -89,6 +89,10 @@ export async function loginUser(
       return fail("INVALID_CREDENTIALS", AUTH_ERROR_MESSAGES.invalidCredentials);
     }
 
+    if (!user.passwordHash) {
+      return fail("INVALID_CREDENTIALS", AUTH_ERROR_MESSAGES.invalidCredentials)
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
       return fail("INVALID_CREDENTIALS", AUTH_ERROR_MESSAGES.invalidCredentials);
