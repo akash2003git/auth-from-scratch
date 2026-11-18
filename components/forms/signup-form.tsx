@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { OAuthButtons } from "@/components/auth/oauth-buttons";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { signUp } from "@/app/actions/auth";
@@ -190,6 +192,14 @@ export function SignupForm() {
         >
           {isLoading ? "Signing you up..." : "Sign up"}
         </Button>
+
+        <div className="flex w-full items-center gap-3">
+          <Separator className="flex-1" />
+          <span className="text-xs text-muted-foreground">or</span>
+          <Separator className="flex-1" />
+        </div>
+
+        <OAuthButtons />
 
         <div className="flex items-center gap-1 text-sm text-muted-foreground">
           <span>Already have an account?</span>
