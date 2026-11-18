@@ -23,14 +23,22 @@ function findPgError(error: unknown): PgError | null {
   return null;
 }
 
-export function uniqueViolationField(error: unknown): UniqueField | null {
+/**
+ * Returns the violated constraint name for a Postgres unique violation,
+ * or null for any other error.
+ */
+export function uniqueViolationConstraint(error: unknown): string | null {
   const pgError = findPgError(error);
 
   if (pgError?.code !== "23505") {
     return null;
   }
 
-  switch (pgError.constraint_name) {
+  return pgError.constraint_name ?? null;
+}
+
+export function uniqueViolationField(error: unknown): UniqueField | null {
+  switch (uniqueViolationConstraint(error)) {
     case "users_email_key":
       return "email";
     case "users_username_key":

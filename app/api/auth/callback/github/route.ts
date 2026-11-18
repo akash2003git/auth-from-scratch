@@ -3,6 +3,8 @@ import { APP_URL } from "@/lib/auth/oauth/config";
 import { clearStateCookie, readStateCookie } from "@/lib/auth/oauth/cookies";
 import type { OAuthPublicError } from "@/lib/auth/oauth/errors";
 import { exchangeCodeForToken, getGitHubIdentity } from "@/lib/auth/oauth/github";
+import { resolveOAuthUser } from "@/lib/auth/oauth/accounts";
+import { createSession } from "@/lib/auth/session-lifecycle";
 
 async function fail(error: OAuthPublicError): Promise<never> {
   await clearStateCookie("github");
@@ -52,12 +54,23 @@ export async function GET(request: Request) {
     return fail("oauth_failed");
   }
 
-  // Temporary: verifies the normalized identity before account resolution.
-  // Remove this before committing the real sign-in flow.
-  console.log("GitHub identity", identityResult.identity);
+  const identity = identityResult.identity;
 
-  return Response.json(
-    { ok: true },
-    { headers: { "Cache-Control": "no-store" } },
-  );
+  const resolution = await resolveOAuthUser({
+    provider: "github",
+    providerUserId: identity.providerUserId,
+    email: identity.email,
+    login: identity.login,
+  });
+
+  if (!resolution.ok) {
+    console.error("GitHub account resolution failed", {
+      stage: "account_resolution",
+      reason: resolution.reason,
+    });
+    return fail("oauth_failed");
+  }
+
+  await createSession(resolution.userId);
+  redirect(new URL("/dashboard", APP_URL).toString());
 }
