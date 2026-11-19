@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 import { APP_URL } from "@/lib/auth/oauth/config";
-import { clearStateCookie, readStateCookie } from "@/lib/auth/oauth/cookies";
+import {
+  clearCodeVerifierCookie,
+  clearStateCookie,
+  readCodeVerifierCookie,
+  readStateCookie,
+} from "@/lib/auth/oauth/cookies";
 import type { OAuthPublicError } from "@/lib/auth/oauth/errors";
 import { exchangeCodeForToken, getGitHubIdentity } from "@/lib/auth/oauth/github";
 import { resolveOAuthUser } from "@/lib/auth/oauth/accounts";
@@ -8,6 +13,7 @@ import { createSession } from "@/lib/auth/session-lifecycle";
 
 async function fail(error: OAuthPublicError): Promise<never> {
   await clearStateCookie("github");
+  await clearCodeVerifierCookie("github");
   redirect(new URL(`/login?error=${error}`, APP_URL).toString());
 }
 
@@ -24,14 +30,21 @@ export async function GET(request: Request) {
   }
 
   const stateCookie = await readStateCookie("github");
+  const codeVerifier = await readCodeVerifierCookie("github");
 
   if (!code || !state || !stateCookie || stateCookie !== state) {
     return fail("oauth_failed");
   }
 
-  await clearStateCookie("github");
+  if (!codeVerifier) {
+    console.error("GitHub OAuth failed", { stage: "pkce", reason: "missing_verifier" });
+    return fail("oauth_failed");
+  }
 
-  const tokenResult = await exchangeCodeForToken(code);
+  await clearStateCookie("github");
+  await clearCodeVerifierCookie("github");
+
+  const tokenResult = await exchangeCodeForToken(code, codeVerifier);
 
   if (!tokenResult.ok) {
     console.error("GitHub token exchange failed", {

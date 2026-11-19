@@ -27,6 +27,7 @@ const TOKEN_EXCHANGE_TIMEOUT_MS = 10_000;
  */
 export async function exchangeCodeForToken(
   code: string,
+  codeVerifier: string,
 ): Promise<TokenExchangeResult> {
   let response: Response;
 
@@ -41,6 +42,7 @@ export async function exchangeCodeForToken(
         client_id: githubConfig.clientId,
         client_secret: githubConfig.clientSecret,
         code,
+        code_verifier: codeVerifier,
         redirect_uri: githubConfig.callbackUrl,
       }),
       signal: AbortSignal.timeout(TOKEN_EXCHANGE_TIMEOUT_MS),
