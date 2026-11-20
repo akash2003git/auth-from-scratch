@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 function GitHubIcon() {
@@ -56,15 +56,13 @@ export function OAuthButtons() {
         Continue with GitHub
       </a>
 
-      <Button
-        type="button"
-        variant="outline"
-        className="h-10 w-full gap-2"
-        onClick={() => console.log("Google OAuth is not implemented yet")}
+      <a
+        href="/api/auth/google"
+        className={cn(buttonVariants({ variant: "outline" }), "h-10 w-full gap-2")}
       >
         <GoogleIcon />
         Continue with Google
-      </Button>
+      </a>
     </div>
   );
 }
